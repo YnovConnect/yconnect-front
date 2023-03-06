@@ -1,0 +1,62 @@
+.v-application {
+  color: var(--v-838383-dark-txt-base) !important;
+
+  a {
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .v-alert,
+  .v-snack__content {
+    font-weight: 600;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.87;
+    letter-spacing: normal;
+    text-align: center;
+  }
+
+  .v-btn {
+    /**
+     * Button style for custom colors we added.
+     */
+    &.avocado,
+    &.pumpkin-orange,
+    &.strawberry,
+    &.ynov {
+      color: var(--white);
+    }
+
+    &.primary {
+      background: var(--white) !important;
+      color: var(--v-primary-base) !important;
+    }
+  }
+
+  .v-snack {
+    .v-snack__wrapper {
+      min-height: 0;
+      padding: 8px 16px;
+
+      .v-snack__content {
+        font-size: 1rem;
+        margin: 0;
+        padding: 0;
+      }
+    }
+  }
+
+  .v-text-field.v-text-field--enclosed {
+    .v-text-field__details {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+
+  .text-h1,
+  .text-h2,
+  .text-h3,
+  .text-h4 {
+    color: var(--v-mine-shaft-base);
+  }
+}

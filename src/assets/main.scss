@@ -1,0 +1,11 @@
+:root {
+  --white: #fff;
+  --black: #000;
+  --i-os-system-fills-light-3-tertiary-fill-color: rgba(118, 118, 128, 0.12);
+  --i-os-system-fills-light-2-secondary-fill-color: rgba(120, 120, 128, 0.16);
+}
+
+.theme--light.v-card > .v-card__actions > .v-btn--disabled {
+  // equivalent to rgba(var(--v-mine-shaft-base), 0.26), but working
+  color: rgba(0, 0, 0, 0.26) !important;
+}

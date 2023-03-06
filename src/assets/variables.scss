@@ -1,0 +1,84 @@
+// Ref: https://github.com/nuxt-community/vuetify-module#customvariables
+
+/**
+ * For bold, semi bold, medium, numeric values have been found here:
+ * https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight#common_weight_name_mapping
+ */
+@font-face {
+  font-family: 'Poppins';
+  src: url('~assets/fonts/poppins_regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('~assets/fonts/poppins_medium.ttf') format('truetype');
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('~assets/fonts/poppins_semi_bold.ttf') format('truetype');
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('~assets/fonts/poppins_bold.ttf') format('truetype');
+  font-weight: bold; // bold = 700
+}
+
+$font-size-root: 13px;
+$line-height-root: 1.62;
+
+$headings: (
+  'h1': (
+    'size': 31px,
+    'weight': bold,
+    'line-height': 1.62,
+    'letter-spacing': normal,
+    'text-transform': false,
+  ),
+  'h2': (
+    'size': 24px,
+    'weight': bold,
+    'line-height': 1.62,
+    'letter-spacing': normal,
+  ),
+  'h3': (
+    'size': 18px,
+    'weight': bold,
+    'line-height': 1.62,
+    'letter-spacing': normal,
+  ),
+  'h4': (
+    'size': 14px,
+    'weight': 600,
+    'line-height': 1.62,
+    'letter-spacing': normal,
+  ),
+  'body-1': (
+    'weight': normal,
+    'line-height': 1.62,
+    'letter-spacing': normal,
+  ),
+);
+
+/* Disable ripple effect. Disable it in components if you can. */
+$ripple-animation-transition-in: none;
+$ripple-animation-transition-out: none;
+$ripple-animation-visible-opacity: none;
+
+$material-light: (
+  'buttons': (
+    'disabled': rgba(var(--v-mine-shaft-base), 0.26),
+    'focused': var(--white),
+  ),
+);
+
+$alert-font-size: 13px;
+$border-radius-root: 5px;
+$btn-font-weight: bold;
+$btn-letter-spacing: normal;
+$btn-text-transform: none;
+$card-border-radius: 10px;
+$snackbar-action-margin: 0;
