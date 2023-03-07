@@ -2,26 +2,20 @@
   <v-form v-slot="{ onClickStop }" class="o-login" @submit="handleSubmit">
     <v-row>
       <v-col cols="12">
-        <v-text-field v-model="form.fields.email" label="Email" color-label="white" />
+        <v-text-field v-model="form.fields.email" label="Email" variant="solo" />
       </v-col>
       <v-col cols="12">
         <v-text-field
           v-model="form.fields.password"
           label="Mot de passe"
+          variant="solo"
           type="password"
-          color-label="white"
-        />
-      </v-col>
-      <v-col cols="12" class="p-0">
-        <v-checkbox
-          v-model="form.fields.remember"
-          label="input.login.remember"
-          color-label="white"
-          color="white"
         />
       </v-col>
       <v-col cols="12">
-        <v-btn block color="ynov" type="submit" x-large @click.stop="onClickStop"> Valider </v-btn>
+        <v-btn block color="#23b2a4" type="submit" x-large @click.stop="onClickStop">
+          Valider
+        </v-btn>
       </v-col>
     </v-row>
   </v-form>

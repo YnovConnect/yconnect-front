@@ -3,9 +3,6 @@
     <v-col></v-col>
     <v-col cols="6" class="containerForm">
       <v-row>
-        <v-col cols="4" class="text-center logo">
-          <v-img contain src="/src/svg/logo_ynov_campus_lyon.svg" />
-        </v-col>
         <v-row class="contentTitleForm mt-8">
           <v-col class="text-h1 white--text text-left pb-0"> Se connecter </v-col>
           <v-col cols="12" class="text-left pt-0 pb-10">
