@@ -13,7 +13,7 @@
 
       <v-row class="contentForm">
         <v-col>
-          <LoginForm />
+          <LoginForm @submit="submit" />
         </v-col>
       </v-row>
 
