@@ -12,4 +12,11 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
+  publicRuntimeConfig: {
+    // variables used at runtime
+    apiUrl: {
+      main: 'http://yconnect-api.codemates.fr/api',
+    },
+    apiLocales: ['fr', 'en', 'es', 'de', 'it', 'pt'], // languages handled in i18n attributes
+  },
 })

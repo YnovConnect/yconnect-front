@@ -13,7 +13,7 @@
 
       <v-row class="contentForm">
         <v-col>
-          <LoginForm @submit="submit" />
+          <LoginForm @submit="handleSubmit" />
         </v-col>
       </v-row>
 
@@ -29,22 +29,36 @@
 <script>
 // import ForgottenPasswordLink from '~/components/molecules/auth/ForgottenPasswordLink'
 import LoginForm from '@/components/organisms/auth/LoginForm.vue'
+import { useAuthStore } from '@/stores/auth'
 
 export default {
-  name: 'PageLogin',
-
   components: {
-    // ForgottenPasswordLink,
     LoginForm
   },
   computed: {
     isMobile() {
       return this.$vuetify.breakpoint.mobile
     }
-  }
+  },
 
-  // auth: 'guest'
-  // layout: 'one_column_centered_without_navbar',
+  methods: {
+    async handleSubmit(formValues) {
+      const authStore = useAuthStore()
+      try {
+        this.isLoading = true
+        await authStore.login({
+          email: formValues.email,
+          password: formValues.password
+        })
+
+        this.$router.push({ name: 'home' })
+      } catch (error) {
+        console.log(error)
+      } finally {
+        this.isLoading = false
+      }
+    }
+  }
 }
 </script>
 

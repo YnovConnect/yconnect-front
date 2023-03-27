@@ -68,10 +68,6 @@ export default {
     }
   },
 
-  fetch() {
-    this.fetchLocales()
-  },
-
   data() {
     return {
       fields: {

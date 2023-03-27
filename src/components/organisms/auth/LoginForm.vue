@@ -1,19 +1,19 @@
 <template>
-  <v-form v-slot="{ onClickStop }" class="o-login" @submit="handleSubmit">
+  <v-form class="o-login" @submit="handleSubmit">
     <v-row>
       <v-col cols="12">
-        <v-text-field v-model="form.fields.email" label="Email" variant="solo" />
+        <v-text-field v-model="fields.email" label="Email" variant="solo" />
       </v-col>
       <v-col cols="12">
         <v-text-field
-          v-model="form.fields.password"
+          v-model="fields.password"
           label="Mot de passe"
           variant="solo"
           type="password"
         />
       </v-col>
       <v-col cols="12">
-        <v-btn block color="#23b2a4" type="submit" x-large @click.stop="onClickStop">
+        <v-btn block color="#23b2a4" type="submit" x-large @click.stop="handleSubmit">
           Valider
         </v-btn>
       </v-col>
@@ -25,11 +25,9 @@
 export default {
   data() {
     return {
-      form: {
-        fields: {
-          email: '',
-          password: ''
-        }
+      fields: {
+        email: '',
+        password: ''
       }
     }
   },
@@ -52,19 +50,9 @@ export default {
     /**
      * Try to authenticate user.
      */
-    async handleSubmit() {
-      try {
-        await this.$auth.login({ data: this.form.fields })
-      } catch (error) {
-        if ([401, 403, 500].includes(error.response?.status)) {
-          // status 500 is an expected use case!
-          this.$notify({
-            message: this.$t('error.auth.invalid_credentials'),
-            type: 'error'
-          })
-        } else {
-          this.$notify({ error })
-        }
+    handleSubmit() {
+      if (!this.loading) {
+        this.$emit('submit', this.fields)
       }
     }
   }

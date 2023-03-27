@@ -19,6 +19,7 @@
 
 <script>
 import AccountCreateForm from '@/components/organisms/auth/AccountCreateForm.vue'
+import { useAuthStore } from '@/stores/auth'
 
 export default {
   components: { AccountCreateForm },
@@ -32,15 +33,21 @@ export default {
 
   methods: {
     /**
-     * Create a user account.
+     * Create an user account.
      * @param {Object} formValues the user form values.
      */
     async handleSubmit(formValues) {
-      this.isLoading = true
-
+      const authStore = useAuthStore()
       try {
-        await this.$auth.register({ data: formValues })
-        this.$router.push({ name: 'auth.signup.success' })
+        this.isLoading = true
+        await authStore.register({
+          email: formValues.email,
+          password: formValues.password,
+          first_name: formValues.first_name,
+          last_name: formValues.last_name
+        })
+
+        this.$router.push({ name: 'login' })
       } catch (error) {
         console.log(error)
       } finally {
