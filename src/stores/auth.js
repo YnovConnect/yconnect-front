@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 export const useAuthStore = defineStore('auth', {
   
@@ -21,19 +22,21 @@ export const useAuthStore = defineStore('auth', {
 
     async login(values) {
       try {
-        console.log(values);
         const response = await axios.post('https://yconnect-api.codemates.fr/api/login', 
         {
           email: values.email, 
           password: values.password,
-        });
+        },
+        );
+
+        Cookies.set('yconnect_access_token', response.data.yconnect_access_token, { expires: 7 });
         return response.data;
       } catch (error) {
         console.error(error);
       } 
     },
     logout() {
-      // Votre logique de déconnexion ici
+      Cookies.remove('yconnect_access_token');
     },
   },
 });
