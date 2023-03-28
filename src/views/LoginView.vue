@@ -63,12 +63,6 @@ export default {
 </script>
 
 <style>
-.containerLogin {
-  background-image: url('../static/img/background_login.png');
-  background-size: cover;
-  background-position: bottom;
-}
-
 .containerForm {
   padding: 80px;
   background-color: rgba(41, 41, 41, 0.3);

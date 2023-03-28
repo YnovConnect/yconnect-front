@@ -13,7 +13,7 @@
         />
       </v-col>
       <v-col cols="12">
-        <v-btn block color="#23b2a4" @click="handleSubmit" x-large> Valider </v-btn>
+        <v-btn block color="white" @click="handleSubmit" x-large> Valider </v-btn>
       </v-col>
     </v-row>
   </v-form>

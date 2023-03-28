@@ -46,7 +46,7 @@
       <v-col cols="12">
         <v-btn
           block
-          color="#23b2a4"
+          color="white"
           :loading="loading"
           type="submit"
           x-large
