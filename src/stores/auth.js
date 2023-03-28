@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { useUserStore } from '../stores/user';
-
 
 export const useAuthStore = defineStore('auth', {
   
@@ -31,18 +29,7 @@ export const useAuthStore = defineStore('auth', {
         },
         );
 
-        // console.log(response.data.user)
         Cookies.set('yconnect_access_token', response.data.yconnect_access_token, { expires: 7 });
-        const userStore = useUserStore();
-        userStore.setLastname(response.data.user.lastname);
-        userStore.setFirstname(response.data.user.firstname);
-        userStore.setEmail(response.data.user.email);
-        userStore.setBirthday(response.data.user.birthday);
-        userStore.setIsDeleted(response.data.user.isDeleted);
-        userStore.setId(response.data.user._id);
-
-  
-
         return response.data;
       } catch (error) {
         console.error(error);
@@ -50,9 +37,6 @@ export const useAuthStore = defineStore('auth', {
     },
     logout() {
       Cookies.remove('yconnect_access_token');
-
-      const userStore = useUserStore();
-      userStore.$reset();
     },
   },
 });

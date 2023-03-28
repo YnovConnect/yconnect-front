@@ -19,10 +19,7 @@
 
       <v-row>
         <v-col class="text-right">
-          <!-- Redirect on login page -->
-          <v-btn text color="white" @click="$router.push({ name: 'inscription' })">
-            Pas encore de compte ? Inscrivez-vous
-          </v-btn>
+          <!-- <ForgottenPasswordLink /> -->
         </v-col>
       </v-row>
     </v-col>
