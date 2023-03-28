@@ -17,6 +17,8 @@
 import { register } from 'vue-advanced-chat'
 import io from 'socket.io-client'
 import Cookie from 'js-cookie'
+import { useUserStore } from '@/stores/user.js'
+import { useMessageStore } from '@/stores/message.js'
 
 register()
 
@@ -44,7 +46,9 @@ export default {
   mounted() {
     console.log('mounted')
 
-    const token = Cookie.get('yconnect_access_token')
+    const cookieValue = Cookie.get('yconnect_access_token')
+    const token = JSON.parse(cookieValue)?.token
+
     this.socket = io('ws://localhost:3001', {
       auth: { token }
     })
@@ -92,8 +96,26 @@ export default {
       return messages
     },
 
-    sendMessage(message) {
+    async sendMessage(message) {
       console.log('sendMessage')
+
+      const userStore = useUserStore()
+      const messageStore = useMessageStore()
+
+      const cookieValue = Cookie.get('yconnect_access_token')
+      const token = JSON.parse(cookieValue)?.token
+
+      try {
+        await messageStore.addMessage({
+          content: message.content,
+          user: userStore.id
+        })
+
+        console.log('message added')
+      } catch (error) {
+        console.log(error)
+      }
+
       // Envoyer le message au serveur via socket.io
       this.socket.emit('message', {
         roomId: '6422bed20078771bcf1d0270', // ID de la room à laquelle le message doit être envoyé
