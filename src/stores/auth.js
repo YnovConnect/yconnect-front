@@ -32,7 +32,11 @@ export const useAuthStore = defineStore('auth', {
         );
 
         // console.log(response.data.user)
-        Cookies.set('yconnect_access_token', response.data.yconnect_access_token, { expires: 7 });
+        Cookies.set('yconnect_access_token', 
+          {
+            token: response.data.yconnect_access_token,
+            user: response.data.user,
+          }, { expires: 7 });
         const userStore = useUserStore();
         userStore.setLastname(response.data.user.lastname);
         userStore.setFirstname(response.data.user.firstname);
@@ -40,8 +44,6 @@ export const useAuthStore = defineStore('auth', {
         userStore.setBirthday(response.data.user.birthday);
         userStore.setIsDeleted(response.data.user.isDeleted);
         userStore.setId(response.data.user._id);
-
-  
 
         return response.data;
       } catch (error) {
