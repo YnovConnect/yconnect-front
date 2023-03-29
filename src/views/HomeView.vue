@@ -25,8 +25,8 @@ import CreateRoomDialog from '../components/organisms/messaging/CreateRoomDialog
 import { register } from 'vue-advanced-chat'
 import io from 'socket.io-client'
 import Cookie from 'js-cookie'
-import { useUserStore } from '@/stores/user.js'
 import { useMessageStore } from '@/stores/message.js'
+import { useAuthStore } from '../stores/auth'
 
 register()
 export default {
@@ -55,7 +55,6 @@ export default {
       socket: null
     }
   },
-
 
   computed: {
     currentUserId() {
@@ -120,12 +119,12 @@ export default {
     },
 
     async sendMessage(message) {
-      const userStore = useUserStore()
+      const authStore = useAuthStore()
       const messageStore = useMessageStore()
       try {
         await messageStore.addMessage({
           content: message.content,
-          user: userStore.id,
+          user: authStore.user._id,
           roomId: '6422bed20078771bcf1d0270'
         })
       } catch (error) {
