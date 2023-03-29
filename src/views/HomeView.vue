@@ -20,9 +20,6 @@ import Cookie from 'js-cookie'
 import { useUserStore } from '@/stores/user.js'
 import { useMessageStore } from '@/stores/message.js'
 
-const userStore = useUserStore()
-const messageStore = useMessageStore()
-
 register()
 
 export default {
@@ -98,6 +95,8 @@ export default {
     },
 
     async sendMessage(message) {
+      const userStore = useUserStore()
+      const messageStore = useMessageStore()
       try {
         await messageStore.addMessage({
           content: message.content,
