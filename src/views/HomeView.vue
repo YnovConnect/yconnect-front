@@ -83,17 +83,17 @@ export default {
         alert(error)
       }
     })
+    this.socket.on('message', (message) => {
+      console.log('messagecsocket', message)
+      this.messages = [...this.messages, message]
+    })
   },
 
   methods: {
-    fetchMessages({ options = {} }) {
+    fetchMessages() {
       setTimeout(async () => {
-        if (options.reset) {
-          this.messages = await this.addMessages(true)
-        } else {
-          this.messages = [...(await this.addMessages()), ...this.messages]
-          this.messagesLoaded = true
-        }
+        this.messages = await this.addMessages(true)
+        this.messagesLoaded = true
       })
     },
 
@@ -111,11 +111,6 @@ export default {
           date: new Date(msg.createdAt).toDateString(),
           timestamp: new Date(msg.createdAt).toString().substring(16, 21)
         }))
-
-        this.socket.on('message', (message) => {
-          console.log('message', message)
-          this.messages = [...this.messages, message]
-        })
 
         console.log('messages', messages)
         return messagesWithProps
