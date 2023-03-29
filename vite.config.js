@@ -7,6 +7,9 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue(), vueJsx()],
+  server: {
+    port: 80
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
@@ -15,8 +18,8 @@ export default defineConfig({
   publicRuntimeConfig: {
     // variables used at runtime
     apiUrl: {
-      main: 'http://yconnect-api.codemates.fr/api',
+      main: 'http://yconnect-api.codemates.fr/api'
     },
-    apiLocales: ['fr', 'en', 'es', 'de', 'it', 'pt'], // languages handled in i18n attributes
-  },
+    apiLocales: ['fr', 'en', 'es', 'de', 'it', 'pt'] // languages handled in i18n attributes
+  }
 })

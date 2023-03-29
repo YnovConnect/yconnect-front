@@ -27,6 +27,7 @@ import io from 'socket.io-client'
 import Cookie from 'js-cookie'
 import { useMessageStore } from '@/stores/message.js'
 import { useAuthStore } from '../stores/auth'
+import config from '../config/index'
 
 register()
 export default {
@@ -71,7 +72,7 @@ export default {
     const cookieValue = Cookie.get('yconnect_access_token')
     const token = JSON.parse(cookieValue)?.token
 
-    this.socket = io('ws://localhost:3001', {
+    this.socket = io(config.apiWebsocket, {
       auth: { token }
     })
     this.socket.on('connection', () => {
