@@ -1,12 +1,18 @@
 <template>
   <div>
+    <CreateRoomDialog
+      v-model="createChatRoomOpen"
+      :is-creating-chat-room.sync="isCreatingChatRoom"
+    />
     <vue-advanced-chat
       height="calc(100vh - 20px)"
       :current-user-id="currentUserId"
       :rooms="JSON.stringify(rooms)"
       :rooms-loaded="true"
+      :load-first-room="loadFirstRoom"
       :messages="JSON.stringify(messages)"
       :messages-loaded="messagesLoaded"
+      @add-room="handleAddRoomClick"
       @send-message="sendMessage($event.detail[0])"
       @fetch-messages="fetchMessages($event.detail[0])"
     />
@@ -14,16 +20,25 @@
 </template>
 
 <script>
+import CreateRoomDialog from '../components/organisms/messaging/CreateRoomDialog.vue'
+
 import { register } from 'vue-advanced-chat'
 import io from 'socket.io-client'
 import Cookie from 'js-cookie'
+import { useMessageStore } from '@/stores/message.js'
+import { useAuthStore } from '../stores/auth'
 
 register()
-
 export default {
+  components: {
+    CreateRoomDialog
+  },
   data() {
     return {
-      currentUserId: '1234',
+      createChatRoomOpen: false,
+      isCreatingChatRoom: false,
+
+      loadFirstRoom: true,
       rooms: [
         {
           roomId: '6422bed20078771bcf1d0270',
@@ -41,10 +56,21 @@ export default {
     }
   },
 
-  mounted() {
-    console.log('mounted')
+  computed: {
+    currentUserId() {
+      // return this.$store.state.auth.user.id
+      return '1234'
+    },
 
-    const token = Cookie.get('yconnect_access_token')
+    selectedRoomId() {
+      return '1'
+    }
+  },
+
+  mounted() {
+    const cookieValue = Cookie.get('yconnect_access_token')
+    const token = JSON.parse(cookieValue)?.token
+
     this.socket = io('ws://localhost:3001', {
       auth: { token }
     })
@@ -92,8 +118,19 @@ export default {
       return messages
     },
 
-    sendMessage(message) {
-      console.log('sendMessage')
+    async sendMessage(message) {
+      const authStore = useAuthStore()
+      const messageStore = useMessageStore()
+      try {
+        await messageStore.addMessage({
+          content: message.content,
+          user: authStore.user._id,
+          roomId: '6422bed20078771bcf1d0270'
+        })
+      } catch (error) {
+        console.log(error)
+      }
+
       // Envoyer le message au serveur via socket.io
       this.socket.emit('message', {
         roomId: '6422bed20078771bcf1d0270', // ID de la room à laquelle le message doit être envoyé
@@ -117,6 +154,41 @@ export default {
           date: new Date().toDateString()
         }
       ]
+    },
+
+    addNewMessage() {
+      setTimeout(() => {
+        this.messages = [
+          ...this.messages,
+          {
+            _id: this.messages.length,
+            content: 'NEW MESSAGE',
+            senderId: '1234',
+            timestamp: new Date().toString().substring(16, 21),
+            date: new Date().toDateString()
+          }
+        ]
+      }, 2000)
+    },
+
+    /**
+     ************************ Event handlers ************************
+     */
+    /**
+     * Open new room dialog at click.
+     */
+    handleAddRoomClick() {
+      this.createChatRoomOpen = true
+    }
+  },
+  watch: {
+    /**
+     * If creating a chat room, allow loading first room.
+     * @param {Boolean} val
+     * @param {Boolean} prev
+     */
+    isCreatingChatRoom(val, prev) {
+      this.loadFirstRoom = val
     }
   }
 }

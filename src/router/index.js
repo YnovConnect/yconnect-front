@@ -4,6 +4,7 @@ import LoginView from '../views/LoginView.vue'
 import AccountCreateView from '../views/AccountCreateView.vue'
 import ErrorView from '../views/ErrorView.vue'
 import Cookies from 'js-cookie';
+import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -56,6 +57,8 @@ const router = createRouter({
       name: 'logout',
       beforeEnter: (to, from, next) => {
         Cookies.remove('yconnect_access_token');
+        const authStore = useAuthStore()
+        authStore.$reset()
         next('/login')
       }
     }
@@ -63,8 +66,18 @@ const router = createRouter({
 })
 
 function checkAuthorization() {
-  // Your authorization logic goes here
-  return Cookies.get('yconnect_access_token') ? true : false; // return true if user is authorized, false otherwise
+  const authStore = useAuthStore()
+
+  if(Cookies.get('yconnect_access_token')) {
+    
+    if(authStore.user.length === 0) {
+      authStore.user = JSON.parse(Cookies.get('yconnect_access_token')).user
+    }
+    return true
+  } else {
+    return false
+  }
+  // return Cookies.get('yconnect_access_token') ? true : false; // return true if user is authorized, false otherwise
 }
 
 export default router
