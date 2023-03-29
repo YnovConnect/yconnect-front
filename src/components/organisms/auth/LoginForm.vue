@@ -13,7 +13,14 @@
         />
       </v-col>
       <v-col cols="12">
-        <v-btn block color="white" @click="handleSubmit" x-large> Valider </v-btn>
+        <v-btn
+          block
+          @click="handleSubmit"
+          x-large
+          style="background-color: rgb(35, 178, 164); color: white"
+        >
+          Connexion
+        </v-btn>
       </v-col>
     </v-row>
   </v-form>

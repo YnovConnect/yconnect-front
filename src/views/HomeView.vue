@@ -25,6 +25,8 @@ import CreateRoomDialog from '../components/organisms/messaging/CreateRoomDialog
 import { register } from 'vue-advanced-chat'
 import io from 'socket.io-client'
 import Cookie from 'js-cookie'
+import { useMessageStore } from '@/stores/message.js'
+import { useAuthStore } from '../stores/auth'
 
 register()
 export default {
@@ -54,7 +56,6 @@ export default {
     }
   },
 
-
   computed: {
     currentUserId() {
       // return this.$store.state.auth.user.id
@@ -67,9 +68,9 @@ export default {
   },
 
   mounted() {
-    console.log('mounted')
+    const cookieValue = Cookie.get('yconnect_access_token')
+    const token = JSON.parse(cookieValue)?.token
 
-    const token = Cookie.get('yconnect_access_token')
     this.socket = io('ws://localhost:3001', {
       auth: { token }
     })
@@ -117,8 +118,19 @@ export default {
       return messages
     },
 
-    sendMessage(message) {
-      console.log('sendMessage')
+    async sendMessage(message) {
+      const authStore = useAuthStore()
+      const messageStore = useMessageStore()
+      try {
+        await messageStore.addMessage({
+          content: message.content,
+          user: authStore.user._id,
+          roomId: '6422bed20078771bcf1d0270'
+        })
+      } catch (error) {
+        console.log(error)
+      }
+
       // Envoyer le message au serveur via socket.io
       this.socket.emit('message', {
         roomId: '6422bed20078771bcf1d0270', // ID de la room à laquelle le message doit être envoyé

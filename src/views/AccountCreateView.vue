@@ -1,16 +1,25 @@
 <template>
-  <v-row class="containerLogin">
-    <v-col></v-col>
-    <v-col cols="6" class="containerForm">
+  <v-row class="d-flex justify-center align-center mt-8">
+    <v-col cols="12" md="6" class="containerForm">
+      <div class="frise"></div>
       <v-row>
-        <v-row class="contentTitleForm mt-8">
-          <v-col class="text-h1 white--text text-left pb-10">Inscription </v-col>
+        <v-row class="d-flex flex-column align-items-center">
+          <h1 class="text-h3 white--text text-left pb-10">Inscription</h1>
         </v-row>
       </v-row>
 
       <v-row class="contentForm">
         <v-col>
           <AccountCreateForm @submit="handleSubmit" />
+        </v-col>
+      </v-row>
+
+      <v-row>
+        <v-col class="text-right">
+          <!-- Redirect on login page -->
+          <v-btn variant="text" color="black" @click="$router.push({ name: 'login' })">
+            Déjà un compte ? Connectez-vous
+          </v-btn>
         </v-col>
       </v-row>
     </v-col>
@@ -61,9 +70,25 @@ export default {
 <style>
 .containerForm {
   padding: 80px;
-  background-color: rgb(35, 178, 164);
-  height: 100vh;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
+
+.frise {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  background: content-box;
+  width: 100%;
+  overflow: hidden;
+  opacity: 0.2;
+  z-index: -1;
+  background-image: url('../assets/svg/fresque.svg');
+  background-size: 2500px 375px;
+}
+
 .logo {
   margin: 0 auto;
 }
