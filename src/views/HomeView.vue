@@ -1,12 +1,18 @@
 <template>
   <div>
+    <CreateRoomDialog
+      v-model="createChatRoomOpen"
+      :is-creating-chat-room.sync="isCreatingChatRoom"
+    />
     <vue-advanced-chat
       height="calc(100vh - 20px)"
       :current-user-id="currentUserId"
       :rooms="JSON.stringify(rooms)"
       :rooms-loaded="true"
+      :load-first-room="loadFirstRoom"
       :messages="JSON.stringify(messages)"
       :messages-loaded="messagesLoaded"
+      @add-room="handleAddRoomClick"
       @send-message="sendMessage($event.detail[0])"
       @fetch-messages="fetchMessages($event.detail[0])"
     />
@@ -14,6 +20,8 @@
 </template>
 
 <script>
+import CreateRoomDialog from '../components/organisms/messaging/CreateRoomDialog.vue'
+
 import { register } from 'vue-advanced-chat'
 import io from 'socket.io-client'
 import Cookie from 'js-cookie'
@@ -21,11 +29,16 @@ import { useUserStore } from '@/stores/user.js'
 import { useMessageStore } from '@/stores/message.js'
 
 register()
-
 export default {
+  components: {
+    CreateRoomDialog
+  },
   data() {
     return {
-      currentUserId: '1234',
+      createChatRoomOpen: false,
+      isCreatingChatRoom: false,
+
+      loadFirstRoom: true,
       rooms: [
         {
           roomId: '6422bed20078771bcf1d0270',
@@ -40,6 +53,18 @@ export default {
       messages: [],
       messagesLoaded: false,
       socket: null
+    }
+  },
+
+
+  computed: {
+    currentUserId() {
+      // return this.$store.state.auth.user.id
+      return '1234'
+    },
+
+    selectedRoomId() {
+      return '1'
     }
   },
 
@@ -130,6 +155,41 @@ export default {
           date: new Date().toDateString()
         }
       ]
+    },
+
+    addNewMessage() {
+      setTimeout(() => {
+        this.messages = [
+          ...this.messages,
+          {
+            _id: this.messages.length,
+            content: 'NEW MESSAGE',
+            senderId: '1234',
+            timestamp: new Date().toString().substring(16, 21),
+            date: new Date().toDateString()
+          }
+        ]
+      }, 2000)
+    },
+
+    /**
+     ************************ Event handlers ************************
+     */
+    /**
+     * Open new room dialog at click.
+     */
+    handleAddRoomClick() {
+      this.createChatRoomOpen = true
+    }
+  },
+  watch: {
+    /**
+     * If creating a chat room, allow loading first room.
+     * @param {Boolean} val
+     * @param {Boolean} prev
+     */
+    isCreatingChatRoom(val, prev) {
+      this.loadFirstRoom = val
     }
   }
 }

@@ -3,7 +3,11 @@ import axios from 'axios'
 import Cookies from 'js-cookie'
 import { useUserStore } from '../stores/user'
 
-export const useAuthStore = defineStore('auth', {
+export const useAuthStore = defineStore({
+  id: 'auth',
+  state: () => ({
+    user: []
+  }),
   actions: {
     async register(values) {
       try {
@@ -26,7 +30,6 @@ export const useAuthStore = defineStore('auth', {
           password: values.password
         })
 
-        // console.log(response.data.user)
         Cookies.set(
           'yconnect_access_token',
           JSON.stringify({
@@ -35,13 +38,9 @@ export const useAuthStore = defineStore('auth', {
           }),
           { expires: 7 }
         )
-        const userStore = useUserStore()
-        userStore.setLastname(response.data.user.lastname)
-        userStore.setFirstname(response.data.user.firstname)
-        userStore.setEmail(response.data.user.email)
-        userStore.setBirthday(response.data.user.birthday)
-        userStore.setIsDeleted(response.data.user.isDeleted)
-        userStore.setId(response.data.user._id)
+
+        // add this user in the state of auth store
+        this.user = response.data.user
 
         return response.data
       } catch (error) {
@@ -53,6 +52,11 @@ export const useAuthStore = defineStore('auth', {
 
       const userStore = useUserStore()
       userStore.$reset()
+    }
+  },
+  mutations: {
+    reset(state) {
+      Object.assign(state, state.$reset())
     }
   }
 })
