@@ -20,6 +20,9 @@ import Cookie from 'js-cookie'
 import { useUserStore } from '@/stores/user.js'
 import { useMessageStore } from '@/stores/message.js'
 
+const userStore = useUserStore()
+const messageStore = useMessageStore()
+
 register()
 
 export default {
@@ -44,8 +47,6 @@ export default {
   },
 
   mounted() {
-    console.log('mounted')
-
     const cookieValue = Cookie.get('yconnect_access_token')
     const token = JSON.parse(cookieValue)?.token
 
@@ -97,21 +98,12 @@ export default {
     },
 
     async sendMessage(message) {
-      console.log('sendMessage')
-
-      const userStore = useUserStore()
-      const messageStore = useMessageStore()
-
-      const cookieValue = Cookie.get('yconnect_access_token')
-      const token = JSON.parse(cookieValue)?.token
-
       try {
         await messageStore.addMessage({
           content: message.content,
-          user: userStore.id
+          user: userStore.id,
+          roomId: '6422bed20078771bcf1d0270'
         })
-
-        console.log('message added')
       } catch (error) {
         console.log(error)
       }
