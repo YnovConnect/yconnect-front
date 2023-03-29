@@ -23,6 +23,9 @@
 import CreateRoomDialog from '../components/organisms/messaging/CreateRoomDialog.vue'
 
 import { register } from 'vue-advanced-chat'
+import io from 'socket.io-client'
+import Cookie from 'js-cookie'
+
 register()
 export default {
   components: {
@@ -36,7 +39,7 @@ export default {
       loadFirstRoom: true,
       rooms: [
         {
-          roomId: '1',
+          roomId: '6422bed20078771bcf1d0270',
           roomName: 'Room 1',
           avatar: 'https://66.media.tumblr.com/avatar_c6a8eae4303e_512.pnj',
           users: [
@@ -46,9 +49,11 @@ export default {
         }
       ],
       messages: [],
-      messagesLoaded: false
+      messagesLoaded: false,
+      socket: null
     }
   },
+
 
   computed: {
     currentUserId() {
@@ -61,6 +66,28 @@ export default {
     }
   },
 
+  mounted() {
+    console.log('mounted')
+
+    const token = Cookie.get('yconnect_access_token')
+    this.socket = io('ws://localhost:3001', {
+      auth: { token }
+    })
+    this.socket.on('connection', () => {
+      console.log('Connected to server')
+    })
+    this.socket.emit('join', '1', (error) => {
+      if (error) {
+        alert(error)
+      }
+    })
+
+    this.socket.on('message', (message) => {
+      console.log('message', message)
+      this.messages = [...this.messages, message]
+    })
+  },
+
   methods: {
     fetchMessages({ options = {} }) {
       setTimeout(() => {
@@ -70,7 +97,6 @@ export default {
           this.messages = [...this.addMessages(), ...this.messages]
           this.messagesLoaded = true
         }
-        // this.addNewMessage()
       })
     },
 
@@ -92,6 +118,20 @@ export default {
     },
 
     sendMessage(message) {
+      console.log('sendMessage')
+      // Envoyer le message au serveur via socket.io
+      this.socket.emit('message', {
+        roomId: '6422bed20078771bcf1d0270', // ID de la room à laquelle le message doit être envoyé
+        message: {
+          _id: this.messages.length,
+          content: message.content,
+          senderId: this.currentUserId,
+          timestamp: new Date().toString().substring(16, 21),
+          date: new Date().toDateString()
+        }
+      })
+
+      // Ajouter le message à la liste des messages
       this.messages = [
         ...this.messages,
         {
