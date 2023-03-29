@@ -1,13 +1,13 @@
 <template>
-  <v-row class="containerLogin">
-    <v-col></v-col>
-    <v-col cols="6" class="containerForm">
+  <v-row class="d-flex justify-center align-center mt-8">
+    <v-col cols="12" md="6" class="containerForm">
+      <div class="frise"></div>
       <v-row>
-        <v-row class="contentTitleForm mt-8">
-          <v-col class="text-h1 white--text text-left pb-0"> Se connecter </v-col>
-          <v-col cols="12" class="text-left pt-0 pb-10">
+        <v-row class="d-flex flex-column align-items-center">
+          <h1 class="text-h3 white--text text-left pb-0">Se connecter</h1>
+          <p cols="12" class="text-left pt-0 pb-10">
             Entrez vos identifiants pour vous connecter à votre compte.
-          </v-col>
+          </p>
         </v-row>
       </v-row>
 
@@ -20,7 +20,7 @@
       <v-row>
         <v-col class="text-right">
           <!-- Redirect on login page -->
-          <v-btn text color="white" @click="$router.push({ name: 'inscription' })">
+          <v-btn variant="text" color="black" @click="$router.push({ name: 'inscription' })">
             Pas encore de compte ? Inscrivez-vous
           </v-btn>
         </v-col>
@@ -66,12 +66,6 @@ export default {
 </script>
 
 <style>
-.containerForm {
-  padding: 80px;
-  background-color: rgba(41, 41, 41, 0.3);
-  backdrop-filter: blur(30px);
-  height: 100vh;
-}
 .logo {
   margin: 0 auto;
 }

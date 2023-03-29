@@ -46,13 +46,13 @@
       <v-col cols="12">
         <v-btn
           block
-          color="white"
           :loading="loading"
           type="submit"
           x-large
           @click.stop="onClickStop"
+          style="background-color: rgb(35, 178, 164); color: white"
         >
-          Enregistrer
+          Inscription
         </v-btn>
       </v-col>
     </v-row>
