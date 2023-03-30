@@ -17,6 +17,7 @@
       @add-room="handleAddRoomClick"
       @send-message="sendMessage($event.detail[0])"
       @fetch-messages="fetchMessages($event.detail[0])"
+      @room-info="console.log('bite de chevre')"
     />
   </div>
 </template>
@@ -27,8 +28,10 @@ import CreateRoomDialog from '../components/organisms/messaging/CreateRoomDialog
 import { register } from 'vue-advanced-chat'
 import io from 'socket.io-client'
 import Cookie from 'js-cookie'
+import config from '../config/index'
 import { useMessageStore } from '@/stores/message.js'
 import { useAuthStore } from '../stores/auth'
+import { useRoomStore } from '../stores/room'
 import config from '../config/index'
 import { addMessage, getMessages } from '../utils/message'
 
@@ -75,6 +78,8 @@ export default {
     const cookieValue = Cookie.get('yconnect_access_token')
     const token = JSON.parse(cookieValue)?.token
 
+    Promise.all([this.fetchRooms()])
+
     this.socket = io(config.apiWebsocket, {
       auth: { token }
     })
@@ -106,17 +111,21 @@ export default {
   },
 
   methods: {
-    fetchMessages() {
+    fetchMessages(event) {
       setTimeout(async () => {
-        this.messages = await this.addMessages(true)
+        this.messages = await this.addMessages(event)
         this.messagesLoaded = true
       })
     },
 
-    async addMessages() {
+    async addMessages(event) {
+      const messageStore = useMessageStore()
+      const roomStore = useRoomStore()
+
+      roomStore.currentRoomId = event.room.roomId
       try {
-        const messages = await getMessages({
-          roomId: '6422bed20078771bcf1d0270'
+        const messages = await messageStore.getMessages({
+          roomId: roomStore.currentRoomId
         })
         // Ajouter les propriétés manquantes
         const messagesWithProps = messages.map((msg) => ({
@@ -134,6 +143,7 @@ export default {
     },
 
     async sendMessage(message) {
+      const roomStore = useRoomStore()
       const authStore = useAuthStore()
 
       try {
@@ -144,23 +154,14 @@ export default {
         await addMessage({
           content: message.content,
           user: authStore.user._id,
-          roomId: '6422bed20078771bcf1d0270'
+          roomId: roomStore.currentRoomId
         })
       } catch (error) {
         console.log(error)
       }
 
       // Envoyer le message au serveur via socket.io
-      // this.socket.emit('message', {
-      //   roomId: '6422bed20078771bcf1d0270', // ID de la room à laquelle le message doit être envoyé
-      //   message: {
-      //     _id: message._id,
-      //     content: message.content,
-      //     senderId: this.currentUserId,
-      //     timestamp: new Date().toString().substring(16, 21),
-      //     date: new Date().toDateString()
-      //   }
-      // })
+
     },
 
     /**

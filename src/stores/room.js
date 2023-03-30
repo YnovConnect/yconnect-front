@@ -3,7 +3,9 @@ import api from '../utils/api'
 
 export const useRoomStore = defineStore({
   id: 'room',
-  state: () => ({}),
+  state: () => ({
+    currentRoomId: null,
+  }),
   actions: {
 
     async createRoom(name, userCreate, idUsers) {
@@ -23,6 +25,17 @@ export const useRoomStore = defineStore({
         console.error(error);
       }
     },
+
+    async fetchRooms() {
+      try {
+        const response = await api.get('rooms');
+
+        return response.data;
+
+      } catch (error) {
+        console.error(error);
+      }
+    }
   },
   mutations: {  },
 });
