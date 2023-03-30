@@ -30,6 +30,7 @@ import Cookie from 'js-cookie'
 import { useMessageStore } from '@/stores/message.js'
 import { useAuthStore } from '../stores/auth'
 import config from '../config/index'
+import { addMessage, getMessages } from '../utils/message'
 
 register()
 export default {
@@ -87,7 +88,20 @@ export default {
     })
     this.socket.on('message', (message) => {
       console.log('messagecsocket', message)
-      this.messages = [...this.messages, message]
+      console.log('messages', this.messages)
+      if (message.senderId !== this.currentUserId) {
+        message = message.message
+        let newMessage = {
+          _id: message._id,
+          content: message.content,
+          user: message.user,
+          createdAt: message.createdAt,
+          senderId: message.user,
+          date: new Date(message.createdAt).toDateString(),
+          timestamp: new Date(message.createdAt).toString().substring(16, 21)
+        }
+        this.messages = [...this.messages, newMessage]
+      }
     })
   },
 
@@ -100,9 +114,8 @@ export default {
     },
 
     async addMessages() {
-      const messageStore = useMessageStore()
       try {
-        const messages = await messageStore.getMessages({
+        const messages = await getMessages({
           roomId: '6422bed20078771bcf1d0270'
         })
         // Ajouter les propriétés manquantes
@@ -122,14 +135,13 @@ export default {
 
     async sendMessage(message) {
       const authStore = useAuthStore()
-      const messageStore = useMessageStore()
 
       try {
         // Ajouter les propriétés manquantes au message
-        message._id = messageStore.id || Math.random().toString(36).substr(2, 9)
+        message._id = message.id || Math.random().toString(36).substr(2, 9)
         message.senderId = message.user || authStore.user._id
 
-        await messageStore.addMessage({
+        await addMessage({
           content: message.content,
           user: authStore.user._id,
           roomId: '6422bed20078771bcf1d0270'
@@ -139,16 +151,16 @@ export default {
       }
 
       // Envoyer le message au serveur via socket.io
-      this.socket.emit('message', {
-        roomId: '6422bed20078771bcf1d0270', // ID de la room à laquelle le message doit être envoyé
-        message: {
-          _id: message._id,
-          content: message.content,
-          senderId: this.currentUserId,
-          timestamp: new Date().toString().substring(16, 21),
-          date: new Date().toDateString()
-        }
-      })
+      // this.socket.emit('message', {
+      //   roomId: '6422bed20078771bcf1d0270', // ID de la room à laquelle le message doit être envoyé
+      //   message: {
+      //     _id: message._id,
+      //     content: message.content,
+      //     senderId: this.currentUserId,
+      //     timestamp: new Date().toString().substring(16, 21),
+      //     date: new Date().toDateString()
+      //   }
+      // })
     },
 
     /**
