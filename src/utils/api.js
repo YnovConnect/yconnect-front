@@ -4,17 +4,15 @@ import config from '../config/index';
 import Cookies from 'js-cookie';
 
 
-
-
 const instance = axios.create({
   baseURL: `${config.apiUrl}/`,
 });
 
 instance.interceptors.request.use(
   (config) => {
-    const token =  JSON.parse(Cookies.get('yconnect_access_token')).token
+    const token = Cookies.get('yconnect_access_token');
     if (token) {
-      config.headers["Authorization"] = "Bearer " + token;
+      config.headers["Authorization"] = "Bearer " + JSON.parse(token).token;
     }
     return config;
   },

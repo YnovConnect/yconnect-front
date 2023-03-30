@@ -3,6 +3,7 @@
     <CreateRoomDialog
       v-model="createChatRoomOpen"
       :is-creating-chat-room.sync="isCreatingChatRoom"
+      @input="createChatRoomOpen = $event"
     />
     <vue-advanced-chat
       height="100vh"
