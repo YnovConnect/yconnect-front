@@ -1,5 +1,5 @@
 <template>
-  <v-form v-slot="{ onClickStop }" @submit="handleSubmit">
+  <v-form>
     <v-row>
       <v-col cols="12">
         <v-text-field
@@ -47,9 +47,8 @@
         <v-btn
           block
           :loading="loading"
-          type="submit"
           x-large
-          @click.stop="onClickStop"
+          @click="handleSubmit"
           style="background-color: rgb(35, 178, 164); color: white"
         >
           Inscription
