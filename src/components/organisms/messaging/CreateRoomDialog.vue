@@ -150,6 +150,8 @@ export default {
       try {
         this.isLoading = true
         await roomStore.createRoom(this.fields.name, this.userId, this.fields.members)
+        this.open = false
+        this.$emit('created')
       } catch (error) {
         console.log(error)
       } finally {
