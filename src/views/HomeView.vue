@@ -13,6 +13,7 @@
       :load-first-room="loadFirstRoom"
       :messages="JSON.stringify(messages)"
       :messages-loaded="messagesLoaded"
+      :show-reaction-emojis="false"
       @add-room="handleAddRoomClick"
       @send-message="sendMessage($event.detail[0])"
       @fetch-messages="fetchMessages($event.detail[0])"
@@ -113,7 +114,6 @@ export default {
           timestamp: new Date(msg.createdAt).toString().substring(16, 21)
         }))
 
-        console.log('messages', messages)
         return messagesWithProps
       } catch (error) {
         console.log(error)
@@ -125,12 +125,15 @@ export default {
       const messageStore = useMessageStore()
 
       try {
+        // Ajouter les propriétés manquantes au message
+        message._id = messageStore.id || Math.random().toString(36).substr(2, 9)
+        message.senderId = message.user || authStore.user._id
+
         await messageStore.addMessage({
           content: message.content,
           user: authStore.user._id,
           roomId: '6422bed20078771bcf1d0270'
         })
-        console.log(message)
       } catch (error) {
         console.log(error)
       }
@@ -146,33 +149,6 @@ export default {
           date: new Date().toDateString()
         }
       })
-
-      // Ajouter le message à la liste des messages
-      this.messages = [
-        ...this.messages,
-        {
-          _id: this.messages.length,
-          content: message.content,
-          senderId: this.currentUserId,
-          timestamp: new Date().toString().substring(16, 21),
-          date: new Date().toDateString()
-        }
-      ]
-    },
-
-    addNewMessage() {
-      setTimeout(() => {
-        this.messages = [
-          ...this.messages,
-          {
-            _id: this.messages.length,
-            content: 'NEW MESSAGE',
-            senderId: '1234',
-            timestamp: new Date().toString().substring(16, 21),
-            date: new Date().toDateString()
-          }
-        ]
-      }, 2000)
     },
 
     /**
