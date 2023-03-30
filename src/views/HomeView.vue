@@ -27,10 +27,10 @@ import CreateRoomDialog from '../components/organisms/messaging/CreateRoomDialog
 import { register } from 'vue-advanced-chat'
 import io from 'socket.io-client'
 import Cookie from 'js-cookie'
-import { useMessageStore } from '@/stores/message.js'
-import { useAuthStore } from '../stores/auth'
 import config from '../config/index'
+import { useAuthStore } from '../stores/auth'
 import { addMessage, getMessages } from '../utils/message'
+import { useRoomStore } from '../stores/room'
 
 register()
 export default {
@@ -75,48 +75,66 @@ export default {
     const cookieValue = Cookie.get('yconnect_access_token')
     const token = JSON.parse(cookieValue)?.token
 
+    Promise.all([this.fetchRooms()])
+
     this.socket = io(config.apiWebsocket, {
       auth: { token }
     })
     this.socket.on('connection', () => {
       console.log('Connected to server')
     })
-    this.socket.emit('join', '6422bed20078771bcf1d0270', (error) => {
-      if (error) {
-        alert(error)
-      }
-    })
-    this.socket.on('message', (message) => {
-      console.log('messagecsocket', message)
-      console.log('messages', this.messages)
-      if (message.senderId !== this.currentUserId) {
-        message = message.message
-        let newMessage = {
-          _id: message._id,
-          content: message.content,
-          user: message.user,
-          createdAt: message.createdAt,
-          senderId: message.user,
-          date: new Date(message.createdAt).toDateString(),
-          timestamp: new Date(message.createdAt).toString().substring(16, 21)
-        }
-        this.messages = [...this.messages, newMessage]
-      }
-    })
   },
 
   methods: {
-    fetchMessages() {
+    fetchMessages(event) {
       setTimeout(async () => {
-        this.messages = await this.addMessages(true)
+        this.messages = await this.addMessages(event)
         this.messagesLoaded = true
       })
     },
 
-    async addMessages() {
+    async addMessages(event) {
+      const cookieValue = Cookie.get('yconnect_access_token')
+      const token = JSON.parse(cookieValue)?.token
+      const roomStore = useRoomStore()
+
+      this.socket.emit('leave', roomStore.currentRoomId, (error) => {
+        if (error) {
+          alert(error)
+        }
+      })
+
+      // Update the room id in the store
+      roomStore.currentRoomId = event.room.roomId
+
+      this.socket = io(config.apiWebsocket, {
+        auth: { token }
+      })
+      this.socket.emit('join', roomStore.currentRoomId, (error) => {
+        if (error) {
+          alert(error)
+        }
+      })
+      this.socket.on('message', (message) => {
+        if (message.senderId !== this.currentUserId) {
+          message = message.message
+          let newMessage = {
+            _id: message._id,
+            content: message.content,
+            user: message.user,
+            createdAt: message.createdAt,
+            senderId: message.user,
+            date: new Date(message.createdAt).toDateString(),
+            timestamp: new Date(message.createdAt).toString().substring(16, 21)
+          }
+          this.messages = [...this.messages, newMessage]
+        }
+      })
+
       try {
+        roomStore.currentRoomId = event.room.roomId
         const messages = await getMessages({
-          roomId: '6422bed20078771bcf1d0270'
+          roomId: roomStore.currentRoomId
         })
         // Ajouter les propriétés manquantes
         const messagesWithProps = messages.map((msg) => ({
@@ -134,6 +152,7 @@ export default {
     },
 
     async sendMessage(message) {
+      const roomStore = useRoomStore()
       const authStore = useAuthStore()
 
       try {
@@ -144,15 +163,15 @@ export default {
         await addMessage({
           content: message.content,
           user: authStore.user._id,
-          roomId: '6422bed20078771bcf1d0270'
+          roomId: roomStore.currentRoomId
         })
       } catch (error) {
         console.log(error)
       }
 
-      // Envoyer le message au serveur via socket.io
+      // // Envoyer le message au serveur via socket.io
       // this.socket.emit('message', {
-      //   roomId: '6422bed20078771bcf1d0270', // ID de la room à laquelle le message doit être envoyé
+      //   roomId: roomStore.currentRoomId, // ID de la room à laquelle le message doit être envoyé
       //   message: {
       //     _id: message._id,
       //     content: message.content,
@@ -161,6 +180,35 @@ export default {
       //     date: new Date().toDateString()
       //   }
       // })
+
+      // Ajouter le message à la liste des messages
+    },
+
+    async fetchRooms() {
+      const roomStore = useRoomStore()
+
+      const res = await roomStore.fetchRooms()
+      this.rooms = res.map((room) => ({
+        roomId: room._id,
+        roomName: room.name,
+        avatar: room.avatar,
+        users: room.users
+      }))
+    },
+
+    addNewMessage() {
+      setTimeout(() => {
+        this.messages = [
+          ...this.messages,
+          {
+            _id: this.messages.length,
+            content: 'NEW MESSAGE',
+            senderId: '1234',
+            timestamp: new Date().toString().substring(16, 21),
+            date: new Date().toDateString()
+          }
+        ]
+      }, 2000)
     },
 
     /**
