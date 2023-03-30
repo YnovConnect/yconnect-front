@@ -13,11 +13,29 @@ async function addMessage(datas) {
 
 async function getMessages(roomId) {
   try {
-    const response = await api.get('/rooms/' + roomId.roomId + '/messages')
-    return response.data
+    const response = await api.get('/rooms/' + roomId.roomId + '/messages');
+    return response.data;
+  } catch (error) {
+    console.error(error)
+  }
+}
+async function deleteMessage(messageId, roomId) {
+  try {
+    await api.delete('/rooms/' + roomId + '/messages/' + messageId);
   } catch (error) {
     console.error(error)
   }
 }
 
-export { addMessage, getMessages }
+async function updateMessage(messageId, roomId, message) {
+  try {
+
+    await api.put('/rooms/' + roomId + '/messages/' + messageId, {
+      content:message.content
+    });
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+export { addMessage, getMessages, deleteMessage, updateMessage }

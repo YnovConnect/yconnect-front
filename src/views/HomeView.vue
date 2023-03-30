@@ -9,16 +9,22 @@
     <vue-advanced-chat
       height="100vh"
       :current-user-id="currentUserId"
-      :rooms="JSON.stringify(rooms)"
-      :rooms-loaded="true"
-      :load-first-room="loadFirstRoom"
+      :rooms="getRooms"
+      :rooms-loaded="roomsLoaded"
+      :load-first-room="true"
       :messages="JSON.stringify(messages)"
       :messages-loaded="messagesLoaded"
       :show-reaction-emojis="false"
       :accepted-files="['*']"
+      :show-footer="true"
       @add-room="handleAddRoomClick"
       @send-message="sendMessage($event.detail[0])"
       @fetch-messages="fetchMessages($event.detail[0])"
+      @delete-message="deleteMessage($event.detail)"
+      @edit-message="editMessage($event.detail)"
+      @open-file="openFile($event.detail[0])"
+
+
     />
   </div>
 </template>
@@ -31,7 +37,7 @@ import io from 'socket.io-client'
 import Cookie from 'js-cookie'
 import {useAuthStore} from '../stores/auth'
 import config from '../config/index'
-import {addMessage, getMessages} from '../utils/message'
+import {addMessage, getMessages, deleteMessage, updateMessage } from '../utils/message'
 import api from '../utils/api'
 import {useRoomStore} from '../stores/room'
 
@@ -44,19 +50,9 @@ export default {
     return {
       createChatRoomOpen: false,
       isCreatingChatRoom: false,
-
-      loadFirstRoom: true,
-      rooms: [
-        {
-          roomId: '6422bed20078771bcf1d0270',
-          roomName: 'Room 1',
-          avatar: 'https://66.media.tumblr.com/avatar_c6a8eae4303e_512.pnj',
-          users: [
-            { _id: '1234', username: 'John Doe' },
-            { _id: '4321', username: 'John Snow' }
-          ]
-        }
-      ],
+      roomsLoaded: false,
+      loadFirstRoom: false,
+      rooms: [],
       messages: [],
       messagesLoaded: false,
       socket: null
@@ -68,9 +64,17 @@ export default {
       const authStore = useAuthStore()
       return authStore.user._id
     },
-
-    selectedRoomId() {
-      return '1'
+    getRooms() {
+      if(this.rooms == null || this.rooms === ''  || this.rooms.length === 0) {
+        return [];
+      }
+      const avatar = "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_1280.png";
+      return this.rooms.map((room) => ({
+        roomId: room._id,
+        roomName: room.name,
+        avatar: avatar,
+        users: room.users
+      }));
     }
   },
 
@@ -89,13 +93,35 @@ export default {
   },
 
   methods: {
-    fetchMessages(event) {
-      setTimeout(async () => {
-        this.messages = await this.addMessages(event)
-        this.messagesLoaded = true
+    editMessage(event) {
+      console.log(event)
+      let newMessages = {
+        content: event[0].newContent,
+      }
+      this.messages = this.messages.map((msg) => {
+        if(msg._id === event[0].messageId) {
+          msg.content = event[0].newContent
+        }
+        return msg
       })
+      updateMessage(event[0].messageId, event[0].roomId, newMessages)
     },
 
+    async fetchMessages(event) {
+      await this.addMessages(event)
+    },
+    async deleteMessage (event) {
+      for(let j =0; j< event.length; j++) {
+        let messageId = event[j].message._id
+        await deleteMessage(messageId, event[j].roomId)
+        this.messages = this.messages.filter((msg) => msg._id !== messageId)
+      }
+    },
+    openFile(event) {
+      if(event.file != null && event.file.file != null && event.file.file.url != null) {
+        window.open(event.file.file.url, '_blank');
+      }
+    },
     async addMessages(event) {
       const cookieValue = Cookie.get('yconnect_access_token')
       const token = JSON.parse(cookieValue)?.token
@@ -106,7 +132,6 @@ export default {
           alert(error)
         }
       })
-
       // Update the room id in the store
       roomStore.currentRoomId = event.room.roomId
 
@@ -138,37 +163,39 @@ export default {
           this.messages = [...this.messages, newMessage]
         }
       })
-
       try {
         roomStore.currentRoomId = event.room.roomId
+        this.messagesLoaded = false;
+
         const messages = await getMessages({
           roomId: roomStore.currentRoomId
         })
-        console.log(messages);
+
         for(let i = 0; i < messages.length; i++) {
           for(let j = 0; j < messages[i].files.length; j++) {
             messages[i].files[j].url = config.apiUrl + messages[i].files[j].url;
           }
         }
+
         // Ajouter les propriétés manquantes
-        return messages.map((msg) => ({
+        this.messages = messages.map((msg) => ({
           ...msg,
           _id: msg._id || Math.random().toString(36).substr(2, 9), // ajouter un ID aléatoire si l'ID manque
           senderId: msg.user || 'Unknown', // ajouter un expéditeur inconnu si l'ID manque
           date: new Date(msg.createdAt).toDateString(),
           timestamp: new Date(msg.createdAt).toString().substring(16, 21)
         }))
+        this.messagesLoaded = true;
       } catch (error) {
         console.log(error)
       }
     },
 
     async sendMessage(message) {
-      console.log(message);
       const roomStore = useRoomStore()
       const authStore = useAuthStore()
-      let docFileId = [];
 
+      let docFileId = [];
       if(message.files != null && message.files.length > 0) {
         for(let i = 0; i < message.files.length; i++) {
           const file = message.files[i]
@@ -200,48 +227,14 @@ export default {
         console.log(error)
       }
 
-      // // Envoyer le message au serveur via socket.io
-      // this.socket.emit('message', {
-      //   roomId: roomStore.currentRoomId, // ID de la room à laquelle le message doit être envoyé
-      //   message: {
-      //     _id: message._id,
-      //     content: message.content,
-      //     senderId: this.currentUserId,
-      //     timestamp: new Date().toString().substring(16, 21),
-      //     date: new Date().toDateString()
-      //   }
-      // })
-
-      // Ajouter le message à la liste des messages
     },
 
     async fetchRooms() {
+      this.roomsLoaded = false;
       const roomStore = useRoomStore()
-
-      const res = await roomStore.fetchRooms()
-      this.rooms = res.map((room) => ({
-        roomId: room._id,
-        roomName: room.name,
-        avatar: room.avatar,
-        users: room.users
-      }))
+      this.rooms = await roomStore.fetchRooms();
+      this.roomsLoaded = true;
     },
-
-    addNewMessage() {
-      setTimeout(() => {
-        this.messages = [
-          ...this.messages,
-          {
-            _id: this.messages.length,
-            content: 'NEW MESSAGE',
-            senderId: '1234',
-            timestamp: new Date().toString().substring(16, 21),
-            date: new Date().toDateString()
-          }
-        ]
-      }, 2000)
-    },
-
     /**
      ************************ Event handlers ************************
      */
