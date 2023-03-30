@@ -8,7 +8,6 @@ export const useMessageStore = defineStore('message', () => {
         content: datas.content,
         user: datas.user
       })
-      console.log(response.data)
       return response.data
     } catch (error) {
       console.error(error)
