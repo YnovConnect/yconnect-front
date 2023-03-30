@@ -10,7 +10,7 @@ export const useRoomStore = defineStore({
 
     async createRoom(name, userCreate, idUsers) {
       try {
-        const response = await api.post('rooms', 
+        const response = await api.post('rooms',
         {
           name: name,
           userCreate: userCreate,
@@ -29,9 +29,7 @@ export const useRoomStore = defineStore({
     async fetchRooms() {
       try {
         const response = await api.get('rooms');
-
         return response.data;
-
       } catch (error) {
         console.error(error);
       }
