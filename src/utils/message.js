@@ -1,9 +1,10 @@
 import api from './api'
 async function addMessage(datas) {
   try {
-    const response = await api.post('/rooms/' + datas.roomId + '/messages', {
+    await api.post('/rooms/' + datas.roomId + '/messages', {
       content: datas.content,
-      user: datas.user
+      user: datas.user,
+      files: datas.files
     })
   } catch (error) {
     console.error(error)
