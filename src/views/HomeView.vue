@@ -2,7 +2,7 @@
   <div>
     <CreateRoomDialog
       v-model="createChatRoomOpen"
-      :is-creating-chat-room.sync="isCreatingChatRoom"
+      v-model:is-creating-chat-room="isCreatingChatRoom"
       @input="createChatRoomOpen = $event"
     />
     <vue-advanced-chat
@@ -14,6 +14,7 @@
       :messages="JSON.stringify(messages)"
       :messages-loaded="messagesLoaded"
       :show-reaction-emojis="false"
+      :accepted-files="['*']"
       @add-room="handleAddRoomClick"
       @send-message="sendMessage($event.detail[0])"
       @fetch-messages="fetchMessages($event.detail[0])"
@@ -24,13 +25,14 @@
 <script>
 import CreateRoomDialog from '../components/organisms/messaging/CreateRoomDialog.vue'
 
-import { register } from 'vue-advanced-chat'
+import {register} from 'vue-advanced-chat'
 import io from 'socket.io-client'
 import Cookie from 'js-cookie'
+import {useAuthStore} from '../stores/auth'
 import config from '../config/index'
-import { useAuthStore } from '../stores/auth'
-import { addMessage, getMessages } from '../utils/message'
-import { useRoomStore } from '../stores/room'
+import {addMessage, getMessages} from '../utils/message'
+import api from '../utils/api'
+import {useRoomStore} from '../stores/room'
 
 register()
 export default {
@@ -118,6 +120,10 @@ export default {
       this.socket.on('message', (message) => {
         if (message.senderId !== this.currentUserId) {
           message = message.message
+          for(let i = 0; i < message.files.length; i++) {
+            message.files[i].url = config.apiUrl + message.files[i].url;
+          }
+
           let newMessage = {
             _id: message._id,
             content: message.content,
@@ -125,7 +131,8 @@ export default {
             createdAt: message.createdAt,
             senderId: message.user,
             date: new Date(message.createdAt).toDateString(),
-            timestamp: new Date(message.createdAt).toString().substring(16, 21)
+            timestamp: new Date(message.createdAt).toString().substring(16, 21),
+            files: message.files
           }
           this.messages = [...this.messages, newMessage]
         }
@@ -136,25 +143,47 @@ export default {
         const messages = await getMessages({
           roomId: roomStore.currentRoomId
         })
+        console.log(messages);
+        for(let i = 0; i < messages.length; i++) {
+          for(let j = 0; j < messages[i].files.length; j++) {
+            messages[i].files[j].url = config.apiUrl + messages[i].files[j].url;
+          }
+        }
         // Ajouter les propriétés manquantes
-        const messagesWithProps = messages.map((msg) => ({
+        return messages.map((msg) => ({
           ...msg,
           _id: msg._id || Math.random().toString(36).substr(2, 9), // ajouter un ID aléatoire si l'ID manque
           senderId: msg.user || 'Unknown', // ajouter un expéditeur inconnu si l'ID manque
           date: new Date(msg.createdAt).toDateString(),
           timestamp: new Date(msg.createdAt).toString().substring(16, 21)
         }))
-
-        return messagesWithProps
       } catch (error) {
         console.log(error)
       }
     },
 
     async sendMessage(message) {
+      console.log(message);
       const roomStore = useRoomStore()
       const authStore = useAuthStore()
+      let docFileId = [];
 
+      if(message.files != null && message.files.length > 0) {
+        for(let i = 0; i < message.files.length; i++) {
+          const file = message.files[i]
+          const formData = new FormData()
+          const myFile = new File([file.blob], file.name, { type: file.type });
+          formData.append('file', myFile);
+          formData.append("audio", file.audio != null ? file.audio : false);
+          formData.append("duration", file.duration != null ? file.duration : 0);
+            const response = await api.post('/upload/', formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+            })
+          docFileId.push(response.data.file._id);
+        }
+      }
       try {
         // Ajouter les propriétés manquantes au message
         message._id = message.id || Math.random().toString(36).substr(2, 9)
@@ -163,7 +192,8 @@ export default {
         await addMessage({
           content: message.content,
           user: authStore.user._id,
-          roomId: roomStore.currentRoomId
+          roomId: roomStore.currentRoomId,
+          files: docFileId
         })
       } catch (error) {
         console.log(error)
@@ -225,9 +255,8 @@ export default {
     /**
      * If creating a chat room, allow loading first room.
      * @param {Boolean} val
-     * @param {Boolean} prev
      */
-    isCreatingChatRoom(val, prev) {
+    isCreatingChatRoom(val) {
       this.loadFirstRoom = val
     }
   }

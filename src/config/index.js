@@ -1,5 +1,4 @@
 export default {
-  apiUrl: 'https://yconnect-api.codemates.fr/api',
-  // apiWebsocket: 'https://yconnect-sock.kilian-marmilliot.com'
-  apiWebsocket: 'https://yconnect-sock.kilian-marmilliot.com'
+  apiUrl: 'http://localhost:3000',
+  apiWebsocket: 'http://localhost:3001'
 }
