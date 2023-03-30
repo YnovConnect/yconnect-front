@@ -46,7 +46,6 @@ export default {
      * @param {Object} formValues the user form values.
      */
     async handleSubmit(formValues) {
-      alert('here')
       const authStore = useAuthStore()
       try {
         this.isLoading = true

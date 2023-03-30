@@ -17,7 +17,6 @@
       @add-room="handleAddRoomClick"
       @send-message="sendMessage($event.detail[0])"
       @fetch-messages="fetchMessages($event.detail[0])"
-      @room-info="console.log('bite de chevre')"
     />
   </div>
 </template>
@@ -29,11 +28,9 @@ import { register } from 'vue-advanced-chat'
 import io from 'socket.io-client'
 import Cookie from 'js-cookie'
 import config from '../config/index'
-import { useMessageStore } from '@/stores/message.js'
 import { useAuthStore } from '../stores/auth'
-import { useRoomStore } from '../stores/room'
-import config from '../config/index'
 import { addMessage, getMessages } from '../utils/message'
+import { useRoomStore } from '../stores/room'
 
 register()
 export default {
@@ -86,28 +83,6 @@ export default {
     this.socket.on('connection', () => {
       console.log('Connected to server')
     })
-    this.socket.emit('join', '6422bed20078771bcf1d0270', (error) => {
-      if (error) {
-        alert(error)
-      }
-    })
-    this.socket.on('message', (message) => {
-      console.log('messagecsocket', message)
-      console.log('messages', this.messages)
-      if (message.senderId !== this.currentUserId) {
-        message = message.message
-        let newMessage = {
-          _id: message._id,
-          content: message.content,
-          user: message.user,
-          createdAt: message.createdAt,
-          senderId: message.user,
-          date: new Date(message.createdAt).toDateString(),
-          timestamp: new Date(message.createdAt).toString().substring(16, 21)
-        }
-        this.messages = [...this.messages, newMessage]
-      }
-    })
   },
 
   methods: {
@@ -119,12 +94,46 @@ export default {
     },
 
     async addMessages(event) {
-      const messageStore = useMessageStore()
+      const cookieValue = Cookie.get('yconnect_access_token')
+      const token = JSON.parse(cookieValue)?.token
       const roomStore = useRoomStore()
 
+      this.socket.emit('leave', roomStore.currentRoomId, (error) => {
+        if (error) {
+          alert(error)
+        }
+      })
+
+      // Update the room id in the store
       roomStore.currentRoomId = event.room.roomId
+
+      this.socket = io(config.apiWebsocket, {
+        auth: { token }
+      })
+      this.socket.emit('join', roomStore.currentRoomId, (error) => {
+        if (error) {
+          alert(error)
+        }
+      })
+      this.socket.on('message', (message) => {
+        if (message.senderId !== this.currentUserId) {
+          message = message.message
+          let newMessage = {
+            _id: message._id,
+            content: message.content,
+            user: message.user,
+            createdAt: message.createdAt,
+            senderId: message.user,
+            date: new Date(message.createdAt).toDateString(),
+            timestamp: new Date(message.createdAt).toString().substring(16, 21)
+          }
+          this.messages = [...this.messages, newMessage]
+        }
+      })
+
       try {
-        const messages = await messageStore.getMessages({
+        roomStore.currentRoomId = event.room.roomId
+        const messages = await getMessages({
           roomId: roomStore.currentRoomId
         })
         // Ajouter les propriétés manquantes
@@ -160,8 +169,46 @@ export default {
         console.log(error)
       }
 
-      // Envoyer le message au serveur via socket.io
+      // // Envoyer le message au serveur via socket.io
+      // this.socket.emit('message', {
+      //   roomId: roomStore.currentRoomId, // ID de la room à laquelle le message doit être envoyé
+      //   message: {
+      //     _id: message._id,
+      //     content: message.content,
+      //     senderId: this.currentUserId,
+      //     timestamp: new Date().toString().substring(16, 21),
+      //     date: new Date().toDateString()
+      //   }
+      // })
 
+      // Ajouter le message à la liste des messages
+    },
+
+    async fetchRooms() {
+      const roomStore = useRoomStore()
+
+      const res = await roomStore.fetchRooms()
+      this.rooms = res.map((room) => ({
+        roomId: room._id,
+        roomName: room.name,
+        avatar: room.avatar,
+        users: room.users
+      }))
+    },
+
+    addNewMessage() {
+      setTimeout(() => {
+        this.messages = [
+          ...this.messages,
+          {
+            _id: this.messages.length,
+            content: 'NEW MESSAGE',
+            senderId: '1234',
+            timestamp: new Date().toString().substring(16, 21),
+            date: new Date().toDateString()
+          }
+        ]
+      }, 2000)
     },
 
     /**
