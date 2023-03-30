@@ -4,6 +4,7 @@
       v-model="createChatRoomOpen"
       v-model:is-creating-chat-room="isCreatingChatRoom"
       @input="createChatRoomOpen = $event"
+      @created="fetchRooms()"
     />
     <vue-advanced-chat
       height="100vh"
