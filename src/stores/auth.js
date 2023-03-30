@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import api from '../utils/api'
 import Cookies from 'js-cookie'
 import { useUserStore } from '../stores/user'
 
@@ -11,7 +11,7 @@ export const useAuthStore = defineStore({
   actions: {
     async register(values) {
       try {
-        const response = await axios.post('https://yconnect-api.codemates.fr/api/register', {
+        const response = await api.post('register', {
           email: values.email,
           password: values.password,
           firstname: values.first_name,
@@ -25,7 +25,7 @@ export const useAuthStore = defineStore({
 
     async login(values) {
       try {
-        const response = await axios.post('https://yconnect-api.codemates.fr/api/login', {
+        const response = await api.post('login', {
           email: values.email,
           password: values.password
         })

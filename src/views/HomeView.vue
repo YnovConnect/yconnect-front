@@ -3,15 +3,17 @@
     <CreateRoomDialog
       v-model="createChatRoomOpen"
       :is-creating-chat-room.sync="isCreatingChatRoom"
+      @input="createChatRoomOpen = $event"
     />
     <vue-advanced-chat
-      height="calc(100vh - 20px)"
+      height="100vh"
       :current-user-id="currentUserId"
       :rooms="JSON.stringify(rooms)"
       :rooms-loaded="true"
       :load-first-room="loadFirstRoom"
       :messages="JSON.stringify(messages)"
       :messages-loaded="messagesLoaded"
+      :show-reaction-emojis="false"
       @add-room="handleAddRoomClick"
       @send-message="sendMessage($event.detail[0])"
       @fetch-messages="fetchMessages($event.detail[0])"
@@ -59,8 +61,8 @@ export default {
 
   computed: {
     currentUserId() {
-      // return this.$store.state.auth.user.id
-      return '1234'
+      const authStore = useAuthStore()
+      return authStore.user._id
     },
 
     selectedRoomId() {
@@ -78,51 +80,55 @@ export default {
     this.socket.on('connection', () => {
       console.log('Connected to server')
     })
-    this.socket.emit('join', '1', (error) => {
+    this.socket.emit('join', '6422bed20078771bcf1d0270', (error) => {
       if (error) {
         alert(error)
       }
     })
-
     this.socket.on('message', (message) => {
-      console.log('message', message)
+      console.log('messagecsocket', message)
       this.messages = [...this.messages, message]
     })
   },
 
   methods: {
-    fetchMessages({ options = {} }) {
-      setTimeout(() => {
-        if (options.reset) {
-          this.messages = this.addMessages(true)
-        } else {
-          this.messages = [...this.addMessages(), ...this.messages]
-          this.messagesLoaded = true
-        }
+    fetchMessages() {
+      setTimeout(async () => {
+        this.messages = await this.addMessages(true)
+        this.messagesLoaded = true
       })
     },
 
-    addMessages(reset) {
-      const messages = []
-
-      for (let i = 0; i < 30; i++) {
-        messages.push({
-          _id: reset ? i : this.messages.length + i,
-          content: `${reset ? '' : 'paginated'} message ${i + 1}`,
-          senderId: '4321',
-          username: 'John Doe',
-          date: '13 November',
-          timestamp: '10:20'
+    async addMessages() {
+      const messageStore = useMessageStore()
+      try {
+        const messages = await messageStore.getMessages({
+          roomId: '6422bed20078771bcf1d0270'
         })
-      }
+        // Ajouter les propriétés manquantes
+        const messagesWithProps = messages.map((msg) => ({
+          ...msg,
+          _id: msg._id || Math.random().toString(36).substr(2, 9), // ajouter un ID aléatoire si l'ID manque
+          senderId: msg.user || 'Unknown', // ajouter un expéditeur inconnu si l'ID manque
+          date: new Date(msg.createdAt).toDateString(),
+          timestamp: new Date(msg.createdAt).toString().substring(16, 21)
+        }))
 
-      return messages
+        return messagesWithProps
+      } catch (error) {
+        console.log(error)
+      }
     },
 
     async sendMessage(message) {
       const authStore = useAuthStore()
       const messageStore = useMessageStore()
+
       try {
+        // Ajouter les propriétés manquantes au message
+        message._id = messageStore.id || Math.random().toString(36).substr(2, 9)
+        message.senderId = message.user || authStore.user._id
+
         await messageStore.addMessage({
           content: message.content,
           user: authStore.user._id,
@@ -136,40 +142,13 @@ export default {
       this.socket.emit('message', {
         roomId: '6422bed20078771bcf1d0270', // ID de la room à laquelle le message doit être envoyé
         message: {
-          _id: this.messages.length,
+          _id: message._id,
           content: message.content,
           senderId: this.currentUserId,
           timestamp: new Date().toString().substring(16, 21),
           date: new Date().toDateString()
         }
       })
-
-      // Ajouter le message à la liste des messages
-      this.messages = [
-        ...this.messages,
-        {
-          _id: this.messages.length,
-          content: message.content,
-          senderId: this.currentUserId,
-          timestamp: new Date().toString().substring(16, 21),
-          date: new Date().toDateString()
-        }
-      ]
-    },
-
-    addNewMessage() {
-      setTimeout(() => {
-        this.messages = [
-          ...this.messages,
-          {
-            _id: this.messages.length,
-            content: 'NEW MESSAGE',
-            senderId: '1234',
-            timestamp: new Date().toString().substring(16, 21),
-            date: new Date().toDateString()
-          }
-        ]
-      }, 2000)
     },
 
     /**

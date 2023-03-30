@@ -8,12 +8,20 @@ export const useMessageStore = defineStore('message', () => {
         content: datas.content,
         user: datas.user
       })
-      console.log(response.data)
       return response.data
     } catch (error) {
       console.error(error)
     }
   }
 
-  return { addMessage }
+  async function getMessages(roomId) {
+    try {
+      const response = await api.get('/rooms/' + roomId.roomId + '/messages')
+      return response.data
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  return { addMessage, getMessages }
 })

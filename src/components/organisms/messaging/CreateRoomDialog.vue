@@ -1,8 +1,14 @@
 <template>
-  <v-dialog v-model="open" fullscreen :scrim="false" transition="dialog-bottom-transition">
+  <v-dialog
+    v-model="open"
+    class="o-createRoomDialog"
+    fullscreen
+    :scrim="false"
+    transition="dialog-bottom-transition"
+  >
     <v-form>
       <!-- XXX: padding is to fix v-card-actions scrollbar with dialog -->
-      <v-card class="pa-1" color="background">
+      <v-card class="o-createRoomDialog__card pa-1" style="height: 100vh" color="background">
         <v-card-title class="flex-column align-stretch">
           <v-row justify="center">
             <v-col class="pb-0">
@@ -38,7 +44,13 @@
         <v-card-actions>
           <v-row justify="center">
             <v-col cols="10" md="8">
-              <v-btn block color="teampulse" :loading="isLoading" x-large @click="createChatRoom">
+              <v-btn
+                block
+                style="background-color: rgb(35, 178, 164); color: white"
+                :loading="isLoading"
+                x-large
+                @click="createChatRoom"
+              >
                 Créer
               </v-btn>
             </v-col>
@@ -50,21 +62,11 @@
 </template>
 
 <script>
-// import PlayerListItems from '~/components/molecules/players/PlayerListItems.vue'
-// import PlayerListFilters from '~/components/molecules/players/PlayerListFilters.vue'
-// import PlayerList from '~/components/organisms/players/PlayerList.vue'
-// import MessagingSelectedPlayers from '~/components/molecules/messaging/MessagingSelectedPlayers.vue'
 import { useUserStore } from '@/stores/user'
+import { useAuthStore } from '@/stores/auth'
 import { useRoomStore } from '@/stores/room'
 
 export default {
-  components: {
-    // MessagingSelectedPlayers,
-    // PlayerList,
-    // PlayerListItems,
-    // PlayerListFilters
-  },
-
   emits: ['created', 'update:isCreatingChatRoom'],
 
   mounted() {
@@ -119,7 +121,8 @@ export default {
      * @returns {Object}
      */
     userId() {
-      return '64214c674eb43e13d417504c'
+      const authStore = useAuthStore()
+      return authStore.user._id
     }
   },
 
@@ -146,15 +149,12 @@ export default {
       const roomStore = useRoomStore()
       try {
         this.isLoading = true
-        await roomStore.createRoom(this.fields.name, this.fields.members, this.userId)
+        await roomStore.createRoom(this.fields.name, this.userId, this.fields.members)
       } catch (error) {
         console.log(error)
       } finally {
         this.isLoading = false
       }
-      // this.$emit('update:isCreatingChatRoom', true)
-      // this.$emit('created', chatRoom)
-      // this.$emit('update:isCreatingChatRoom', false)
     }
   }
 }
@@ -164,6 +164,9 @@ export default {
 .o-createRoomDialog {
   &__body {
     overflow-y: auto;
+  }
+  &__card {
+    height: 100vh;
   }
 }
 </style>
