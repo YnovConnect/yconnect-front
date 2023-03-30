@@ -55,6 +55,7 @@
 // import PlayerList from '~/components/organisms/players/PlayerList.vue'
 // import MessagingSelectedPlayers from '~/components/molecules/messaging/MessagingSelectedPlayers.vue'
 import { useUserStore } from '@/stores/user'
+import { useAuthStore } from '@/stores/auth'
 import { useRoomStore } from '@/stores/room'
 
 export default {
@@ -119,7 +120,8 @@ export default {
      * @returns {Object}
      */
     userId() {
-      return '64214c674eb43e13d417504c'
+      const authStore = useAuthStore()
+      return authStore.user._id
     }
   },
 
