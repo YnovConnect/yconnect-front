@@ -1,7 +1,7 @@
 <template>
   <v-form>
     <v-row>
-      <v-col cols="12">
+      <v-col cols="12" md="6">
         <v-text-field
           v-model="fields.first_name"
           variant="solo"
@@ -9,7 +9,7 @@
           source="player.first_name"
         />
       </v-col>
-      <v-col cols="12">
+      <v-col cols="12" md="6">
         <v-text-field
           v-model="fields.last_name"
           variant="solo"
@@ -20,7 +20,7 @@
       <v-col cols="12">
         <v-text-field v-model="fields.email" variant="solo" label="Email" source="player.email" />
       </v-col>
-      <v-col cols="12">
+      <v-col cols="12" md="6">
         <v-text-field
           v-model="fields.password"
           variant="solo"
@@ -31,7 +31,7 @@
           type="password"
         />
       </v-col>
-      <v-col cols="12">
+      <v-col cols="12" md="6">
         <v-text-field
           v-model="fields.password_confirmation"
           variant="solo"
