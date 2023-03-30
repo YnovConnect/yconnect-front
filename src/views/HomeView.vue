@@ -78,7 +78,7 @@ export default {
     this.socket.on('connection', () => {
       console.log('Connected to server')
     })
-    this.socket.emit('join', '1', (error) => {
+    this.socket.emit('join', '6422bed20078771bcf1d0270', (error) => {
       if (error) {
         alert(error)
       }
