@@ -9,6 +9,9 @@ export const useAuthStore = defineStore({
     user: []
   }),
   actions: {
+    /**
+     * Register a new user
+     */
     async register(values) {
       try {
         const response = await api.post('register', {
@@ -23,6 +26,9 @@ export const useAuthStore = defineStore({
       }
     },
 
+    /**
+     * Login a user
+     */
     async login(values) {
       try {
         const response = await api.post('login', {
@@ -47,6 +53,10 @@ export const useAuthStore = defineStore({
         console.error(error)
       }
     },
+
+    /**
+     * Logout a user
+     */
     logout() {
       Cookies.remove('yconnect_access_token')
 

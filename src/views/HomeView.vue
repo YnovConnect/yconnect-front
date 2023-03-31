@@ -62,6 +62,9 @@ export default {
       const authStore = useAuthStore()
       return authStore.user._id
     },
+    /**
+     * Get the rooms from the store
+     */
     getRooms() {
       if (this.rooms == null || this.rooms === '' || this.rooms.length === 0) {
         return []
@@ -105,6 +108,9 @@ export default {
       updateMessage(event[0].messageId, event[0].roomId, newMessages)
     },
 
+    /**
+     * Fetch the messages from the API
+     */
     async fetchMessages(event) {
       await this.addMessages(event)
     },
@@ -120,6 +126,7 @@ export default {
         window.open(event.file.file.url, '_blank')
       }
     },
+
     async addMessages(event) {
       const cookieValue = Cookie.get('yconnect_access_token')
       const token = JSON.parse(cookieValue)?.token
@@ -148,6 +155,7 @@ export default {
             message.files[i].url = config.apiUrl + message.files[i].url
           }
 
+          // Add the message to the messages array
           let newMessage = {
             _id: message._id,
             content: message.content,
@@ -185,7 +193,7 @@ export default {
           date: new Date(msg.createdAt).toDateString(),
           username: msg.user.firstname + ' ' + msg.user.lastname,
           timestamp: new Date(msg.createdAt).toString().substring(16, 21),
-          disableReactions: true,
+          disableReactions: true
         }))
         this.messagesLoaded = true
       } catch (error) {
@@ -193,6 +201,9 @@ export default {
       }
     },
 
+    /**
+     * Send a message to the API
+     */
     async sendMessage(message) {
       const roomStore = useRoomStore()
       const authStore = useAuthStore()
@@ -230,6 +241,9 @@ export default {
       }
     },
 
+    /**
+     * Fetch the rooms from the API
+     */
     async fetchRooms() {
       this.roomsLoaded = false
       const roomStore = useRoomStore()

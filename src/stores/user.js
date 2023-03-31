@@ -1,24 +1,22 @@
-import { defineStore } from 'pinia';
+import { defineStore } from 'pinia'
 import api from '../utils/api'
 
 export const useUserStore = defineStore({
   id: 'user',
-  state: () => ({
-
-  }),
+  state: () => ({}),
   actions: {
+    /**
+     * Get all users
+     */
     async listAllUser() {
       try {
-        const response = await api.get('users');
+        const response = await api.get('users')
 
-        return response.data;
-
+        return response.data
       } catch (error) {
-        console.error(error);
+        console.error(error)
       }
-    },
+    }
   },
-  mutations: {
-
-  },
-});
+  mutations: {}
+})

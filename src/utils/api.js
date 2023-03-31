@@ -1,26 +1,31 @@
-import axios from 'axios';
+import axios from 'axios'
 // import { get } from 'lodash';
-import config from '../config/index';
-import Cookies from 'js-cookie';
-
+import config from '../config/index'
+import Cookies from 'js-cookie'
 
 const instance = axios.create({
-  baseURL: `${config.apiUrl}/api/`,
-});
+  baseURL: `${config.apiUrl}/api/`
+})
 
+/*
+ * Add a request interceptor
+ */
 instance.interceptors.request.use(
   (config) => {
-    const token = Cookies.get('yconnect_access_token');
+    const token = Cookies.get('yconnect_access_token')
     if (token) {
-      config.headers["Authorization"] = "Bearer " + JSON.parse(token).token;
+      config.headers['Authorization'] = 'Bearer ' + JSON.parse(token).token
     }
-    return config;
+    return config
   },
   (error) => {
-    return Promise.reject(error);
+    return Promise.reject(error)
   }
-);
+)
 
+/*
+ * Add a response interceptor to refresh token (pas fait)
+ */
 // instance.interceptors.response.use({}, async (error) => {
 //   const { response } = error;
 //   const originalRequest = error.config;
@@ -37,4 +42,4 @@ instance.interceptors.request.use(
 //   return Promise.reject(error);
 // });
 
-export default instance;
+export default instance
