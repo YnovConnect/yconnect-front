@@ -30,7 +30,6 @@
 </template>
 
 <script>
-// import ForgottenPasswordLink from '~/components/molecules/auth/ForgottenPasswordLink'
 import LoginForm from '@/components/organisms/auth/LoginForm.vue'
 import { useAuthStore } from '@/stores/auth'
 

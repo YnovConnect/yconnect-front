@@ -1,17 +1,28 @@
 <template>
-  <header>
-    <div class="layout">
+  <v-app class="l-appLayout">
+    <AppBar />
+    <div id="app">
       <div class="layout-body">
         <RouterView :key="$route.path" />
       </div>
       <div class="layout-footer"></div>
     </div>
-  </header>
+  </v-app>
 </template>
 
-<script setup>
+<script>
+import AppBar from './components/layouts/AppBar.vue'
 // import AppNav from "./components/AppNav.vue";
+
+export default {
+  components: {
+    AppBar
+  }
+}
 </script>
 
 <style scoped>
+#app {
+  margin-top: 7vh !important;
+}
 </style>
