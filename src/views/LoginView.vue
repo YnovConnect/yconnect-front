@@ -1,36 +1,38 @@
 <template>
-  <v-row class="d-flex justify-center align-center mt-8">
-    <v-col cols="12" md="6" class="containerForm">
-      <div class="frise"></div>
-      <v-row>
-        <v-row class="d-flex flex-column align-items-center">
-          <h1 class="text-h3 white--text text-left pb-0">Se connecter</h1>
-          <p cols="12" class="text-left pt-0 pb-10">
-            Entrez vos identifiants pour vous connecter à votre compte.
-          </p>
+  <div>
+    <div class="frise"></div>
+    <v-row class="d-flex justify-center align-center mt-8">
+      <v-col cols="12" md="6" class="containerForm">
+
+        <v-row>
+          <v-row class="d-flex flex-column align-items-center">
+            <h1 class="text-h3 white--text text-left pb-0">Se connecter</h1>
+            <p class="text-left pt-0 pb-10">
+              Entrez vos identifiants pour vous connecter à votre compte.
+            </p>
+          </v-row>
         </v-row>
-      </v-row>
 
-      <v-row class="contentForm">
-        <v-col>
-          <LoginForm @submit="handleSubmit" />
-        </v-col>
-      </v-row>
+        <v-row class="contentForm">
+          <v-col>
+            <LoginForm @submit="handleSubmit" />
+          </v-col>
+        </v-row>
 
-      <v-row>
-        <v-col class="text-right">
-          <!-- Redirect on login page -->
-          <v-btn variant="text" color="black" @click="$router.push({ name: 'inscription' })">
-            Pas encore de compte ? Inscrivez-vous
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-col>
-  </v-row>
+        <v-row>
+          <v-col class="text-right">
+            <!-- Redirect on login page -->
+            <v-btn variant="text" color="black" @click="$router.push({ name: 'inscription' })">
+              Pas encore de compte ? Inscrivez-vous
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-col>
+    </v-row>
+  </div>
 </template>
 
 <script>
-// import ForgottenPasswordLink from '~/components/molecules/auth/ForgottenPasswordLink'
 import LoginForm from '@/components/organisms/auth/LoginForm.vue'
 import { useAuthStore } from '@/stores/auth'
 
@@ -66,12 +68,5 @@ export default {
 </script>
 
 <style>
-.logo {
-  margin: 0 auto;
-}
 
-.contentTitleForm {
-  margin-left: 0;
-  color: white;
-}
 </style>

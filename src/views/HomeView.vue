@@ -7,7 +7,7 @@
       @created="fetchRooms()"
     />
     <vue-advanced-chat
-      height="100vh"
+      height="93vh"
       :current-user-id="currentUserId"
       :rooms="getRooms"
       :rooms-loaded="roomsLoaded"
@@ -30,14 +30,14 @@
 <script>
 import CreateRoomDialog from '../components/organisms/messaging/CreateRoomDialog.vue'
 
-import {register} from 'vue-advanced-chat'
+import { register } from 'vue-advanced-chat'
 import io from 'socket.io-client'
 import Cookie from 'js-cookie'
-import {useAuthStore} from '@/stores/auth'
+import { useAuthStore } from '../stores/auth'
 import config from '../config/index'
-import {addMessage, getMessages, deleteMessage, updateMessage } from '@/utils/message'
+import { addMessage, getMessages, deleteMessage, updateMessage } from '../utils/message'
 import api from '../utils/api'
-import {useRoomStore} from '@/stores/room'
+import { useRoomStore } from '../stores/room'
 
 register()
 export default {
@@ -63,16 +63,16 @@ export default {
       return authStore.user._id
     },
     getRooms() {
-      if(this.rooms == null || this.rooms === ''  || this.rooms.length === 0) {
-        return [];
+      if (this.rooms == null || this.rooms === '' || this.rooms.length === 0) {
+        return []
       }
-      const avatar = "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_1280.png";
+      const avatar = 'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_1280.png'
       return this.rooms.map((room) => ({
         roomId: room._id,
         roomName: room.name,
         avatar: avatar,
         users: room.users
-      }));
+      }))
     }
   },
 
@@ -94,10 +94,10 @@ export default {
     editMessage(event) {
       console.log(event)
       let newMessages = {
-        content: event[0].newContent,
+        content: event[0].newContent
       }
       this.messages = this.messages.map((msg) => {
-        if(msg._id === event[0].messageId) {
+        if (msg._id === event[0].messageId) {
           msg.content = event[0].newContent
         }
         return msg
@@ -108,16 +108,16 @@ export default {
     async fetchMessages(event) {
       await this.addMessages(event)
     },
-    async deleteMessage (event) {
-      for(let j =0; j< event.length; j++) {
+    async deleteMessage(event) {
+      for (let j = 0; j < event.length; j++) {
         let messageId = event[j].message._id
         await deleteMessage(messageId, event[j].roomId)
         this.messages = this.messages.filter((msg) => msg._id !== messageId)
       }
     },
     openFile(event) {
-      if(event.file != null && event.file.file != null && event.file.file.url != null) {
-        window.open(event.file.file.url, '_blank');
+      if (event.file != null && event.file.file != null && event.file.file.url != null) {
+        window.open(event.file.file.url, '_blank')
       }
     },
     async addMessages(event) {
@@ -144,8 +144,8 @@ export default {
       this.socket.on('message', (message) => {
         if (message.senderId !== this.currentUserId) {
           message = message.message
-          for(let i = 0; i < message.files.length; i++) {
-            message.files[i].url = config.apiUrl + message.files[i].url;
+          for (let i = 0; i < message.files.length; i++) {
+            message.files[i].url = config.apiUrl + message.files[i].url
           }
 
           let newMessage = {
@@ -165,15 +165,15 @@ export default {
       })
       try {
         roomStore.currentRoomId = event.room.roomId
-        this.messagesLoaded = false;
+        this.messagesLoaded = false
 
         const messages = await getMessages({
           roomId: roomStore.currentRoomId
         })
 
-        for(let i = 0; i < messages.length; i++) {
-          for(let j = 0; j < messages[i].files.length; j++) {
-            messages[i].files[j].url = config.apiUrl + messages[i].files[j].url;
+        for (let i = 0; i < messages.length; i++) {
+          for (let j = 0; j < messages[i].files.length; j++) {
+            messages[i].files[j].url = config.apiUrl + messages[i].files[j].url
           }
         }
 
@@ -187,7 +187,7 @@ export default {
           timestamp: new Date(msg.createdAt).toString().substring(16, 21),
           disableReactions: true,
         }))
-        this.messagesLoaded = true;
+        this.messagesLoaded = true
       } catch (error) {
         console.log(error)
       }
@@ -197,21 +197,21 @@ export default {
       const roomStore = useRoomStore()
       const authStore = useAuthStore()
 
-      let docFileId = [];
-      if(message.files != null && message.files.length > 0) {
-        for(let i = 0; i < message.files.length; i++) {
+      let docFileId = []
+      if (message.files != null && message.files.length > 0) {
+        for (let i = 0; i < message.files.length; i++) {
           const file = message.files[i]
           const formData = new FormData()
-          const myFile = new File([file.blob], file.name, { type: file.type });
-          formData.append('file', myFile);
-          formData.append("audio", file.audio != null ? file.audio : false);
-          formData.append("duration", file.duration != null ? file.duration : 0);
-            const response = await api.post('/upload/', formData, {
-              headers: {
-                'Content-Type': 'multipart/form-data',
-              },
-            })
-          docFileId.push(response.data.file._id);
+          const myFile = new File([file.blob], file.name, { type: file.type })
+          formData.append('file', myFile)
+          formData.append('audio', file.audio != null ? file.audio : false)
+          formData.append('duration', file.duration != null ? file.duration : 0)
+          const response = await api.post('/upload/', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          })
+          docFileId.push(response.data.file._id)
         }
       }
       try {
@@ -228,14 +228,13 @@ export default {
       } catch (error) {
         console.log(error)
       }
-
     },
 
     async fetchRooms() {
-      this.roomsLoaded = false;
+      this.roomsLoaded = false
       const roomStore = useRoomStore()
-      this.rooms = await roomStore.fetchRooms();
-      this.roomsLoaded = true;
+      this.rooms = await roomStore.fetchRooms()
+      this.roomsLoaded = true
     },
     /**
      ************************ Event handlers ************************
