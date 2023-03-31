@@ -17,7 +17,9 @@
               </div>
             </v-col>
 
-            <v-col cols="12" class="pt-0 text-center text-h2"> Créer un groupe de message </v-col>
+            <v-col cols="12" class="pt-0 text-center text-h4">
+              <div>Créer un groupe</div>
+            </v-col>
           </v-row>
         </v-card-title>
 
@@ -31,12 +33,14 @@
                 v-model="fields.members"
                 clearable
                 chips
+                variant="solo"
                 label="Select"
-                :items="listMembers"
-                item-title="lastname"
+                :items="listMembersWithFormatName"
+                item-title="name"
                 item-value="_id"
                 multiple
-              ></v-select>
+              >
+              </v-select>
             </v-col>
           </v-row>
         </v-card-text>
@@ -114,6 +118,18 @@ export default {
       return {
         name: [required(), maxLength(40)]
       }
+    },
+
+    listMembersWithFormatName() {
+      // remove the current user from the list
+      const list = this.listMembers.filter((member) => member._id !== this.userId)
+
+      return list.map((member) => {
+        return {
+          ...member,
+          name: `${member.firstname} ${member.lastname}`
+        }
+      })
     },
 
     /**
