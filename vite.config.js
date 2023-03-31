@@ -18,15 +18,15 @@ export default defineConfig({
       },
       manifest: {
         name: 'Yconnect',
-        short_name: 'Application Chat - Websocket',
+        short_name: 'Yconnect',
         icons: [
           {
-            src: '/public/icons/192x192.png',
+            src: 'icons/192x192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: '/public/icons/512x512.png',
+            src: 'icons/512x512.png',
             sizes: '512x512',
             type: 'image/png'
           }

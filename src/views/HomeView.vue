@@ -23,8 +23,6 @@
       @delete-message="deleteMessage($event.detail)"
       @edit-message="editMessage($event.detail)"
       @open-file="openFile($event.detail[0])"
-
-
     />
   </div>
 </template>
@@ -35,11 +33,11 @@ import CreateRoomDialog from '../components/organisms/messaging/CreateRoomDialog
 import {register} from 'vue-advanced-chat'
 import io from 'socket.io-client'
 import Cookie from 'js-cookie'
-import {useAuthStore} from '../stores/auth'
+import {useAuthStore} from '@/stores/auth'
 import config from '../config/index'
-import {addMessage, getMessages, deleteMessage, updateMessage } from '../utils/message'
+import {addMessage, getMessages, deleteMessage, updateMessage } from '@/utils/message'
 import api from '../utils/api'
-import {useRoomStore} from '../stores/room'
+import {useRoomStore} from '@/stores/room'
 
 register()
 export default {
@@ -155,10 +153,12 @@ export default {
             content: message.content,
             user: message.user,
             createdAt: message.createdAt,
-            senderId: message.user,
+            senderId: message.user._id,
+            username: message.user.firstname + ' ' + message.user.lastname,
             date: new Date(message.createdAt).toDateString(),
             timestamp: new Date(message.createdAt).toString().substring(16, 21),
-            files: message.files
+            files: message.files,
+            disableReactions: true
           }
           this.messages = [...this.messages, newMessage]
         }
@@ -181,9 +181,11 @@ export default {
         this.messages = messages.map((msg) => ({
           ...msg,
           _id: msg._id || Math.random().toString(36).substr(2, 9), // ajouter un ID aléatoire si l'ID manque
-          senderId: msg.user || 'Unknown', // ajouter un expéditeur inconnu si l'ID manque
+          senderId: msg.user._id || 'Unknown', // ajouter un expéditeur inconnu si l'ID manque
           date: new Date(msg.createdAt).toDateString(),
-          timestamp: new Date(msg.createdAt).toString().substring(16, 21)
+          username: msg.user.firstname + ' ' + msg.user.lastname,
+          timestamp: new Date(msg.createdAt).toString().substring(16, 21),
+          disableReactions: true,
         }))
         this.messagesLoaded = true;
       } catch (error) {
